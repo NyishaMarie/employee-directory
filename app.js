@@ -1,31 +1,20 @@
 import express from "express";
-import {getEmployee, getEmployees, getRandomEmployee} from "#db/employees";
+import morgan from "morgan";
+
+import employeesRouter from "#routers/employees";
+import errorHandler from "#middleware/errorHandler";
 
 const app = express();
 export default app;
+
+app.use(morgan("dev"));
+
+app.use(express.json());
 
 app.get("/", (req, res) => {
     res.send("Hello employees!");
 });
 
-app.get("/employees", async (req, res) => {
-  const employees = getEmployees();
-  res.json(employees);
-});
+app.use("/employees", employeesRouter);
 
-app.get("/employees/random", async (req, res) => {
-  const employee = getRandomEmployee();
-  res.json(employee);
-});
-
-app.get("/employees/:id", async (req, res) => {
-  const {id} = req.params;
-  console.log("id param rcvd:",id);
-    const employee = await getEmployee(+id);
-    if (!employee) {
-        res.status(404).send("Employee not found");
-    } else {
-        res.json(employee);
-    }
-});
-
+app.use(errorHandler);
